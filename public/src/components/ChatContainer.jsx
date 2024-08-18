@@ -6,10 +6,8 @@ import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import { sendMessageRoute, recieveMessageRoute } from "../utils/APIRoutes";
 import { io } from "socket.io-client";
-import {  host } from "../utils/APIRoutes";
-import { debounce } from 'lodash';
-
-
+import { host } from "../utils/APIRoutes";
+import { debounce } from "lodash";
 
 export default function ChatContainer({ currentChat, socket }) {
   const [messages, setMessages] = useState([]);
@@ -19,16 +17,14 @@ export default function ChatContainer({ currentChat, socket }) {
   const [isTyping, setIsTyping] = useState(false);
 
   const handleKeyDown = async () => {
-    const data = await JSON.parse(
-      localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-    );
+    const data = await JSON.parse(localStorage.getItem("user"));
 
     if (!isTyping) {
       currentChat.id == data.id && setIsTyping(true);
       socket.current.emit("typing-msg", {
         from: data.id,
         to: currentChat.id,
-        typing: true
+        typing: true,
       });
     }
 
@@ -36,69 +32,56 @@ export default function ChatContainer({ currentChat, socket }) {
   };
 
   const stopTyping = async (userId) => {
-    const data = await JSON.parse(
-      localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-    );
+    const data = await JSON.parse(localStorage.getItem("user"));
 
     setIsTyping(false);
     socket.current.emit("typing-msg", {
       from: data.id,
       to: currentChat.id,
-      typing: false
+      typing: false,
     });
   };
 
   // Create a debounced version of stopTyping
-  const debouncedStopTyping = useRef(debounce((userId) => stopTyping(userId), 1000)).current;
+  const debouncedStopTyping = useRef(
+    debounce((userId) => stopTyping(userId), 1000)
+  ).current;
 
   useEffect(() => {
     // Add event listeners for keydown
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
 
     // Cleanup event listeners on component unmount
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
       debouncedStopTyping.cancel(); // Cancel any pending debounced calls on unmount
     };
   }, []);
 
-
-
-
-
   useEffect(async () => {
-    const data = await JSON.parse(
-      localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-    );
+    const data = await JSON.parse(localStorage.getItem("user"));
     try {
       const response = await axios.post(recieveMessageRoute, {
-      from: data.id,
-      to: currentChat.id,
-    });
-    setMessages(response.data);
+        from: data.id,
+        to: currentChat.id,
+      });
+      setMessages(response.data);
     } catch (error) {
       console.log(" chatCont error", error);
-    } 
-    
+    }
   }, [currentChat]);
-
-
 
   useEffect(() => {
     const getCurrentChat = async () => {
       if (currentChat) {
-        await JSON.parse(
-          localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-        ).id;
+        await JSON.parse(localStorage.getItem("user")).id;
       }
     };
     getCurrentChat();
   }, [currentChat]);
 
   const handleSendMsg = async (msg) => {
-    const data = await JSON.parse(
-      localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-    );
+    const data = await JSON.parse(localStorage.getItem("user"));
     socket.current.emit("send-msg", {
       to: currentChat.id,
       from: data.id,
@@ -116,22 +99,19 @@ export default function ChatContainer({ currentChat, socket }) {
 
   useEffect(async () => {
     if (socket.current) {
-      const data = await JSON.parse(
-        localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-      );
+      const data = await JSON.parse(localStorage.getItem("user"));
       socket.current.on("msg-recieve", (msg) => {
         console.log("msg recieve", msg);
         setArrivalMessage({ fromSelf: false, message: msg });
       });
 
-      socket.current.on("send-typing",  (msg) => {
+      socket.current.on("send-typing", (msg) => {
         console.log("typing msg", msg);
-     
-        if(data && data.id === msg.to ) {
+
+        if (data && data.id === msg.to) {
           setIsTyping(msg.typing);
         }
       });
-
     }
   }, []);
 
@@ -144,118 +124,60 @@ export default function ChatContainer({ currentChat, socket }) {
   }, [messages]);
 
   return (
-    <Container>
-      <div className="chat-header">
-        <div className="user-details">
-          <div className="avatar">
-            <img
-              src={`data:image/svg+xml;base64,${currentChat.avatarImage}`}
-              alt=""
-            />
+    <div className="flex flex-col h-full w-full overflow-hidden bg-[#f3f4f6]">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 bg-[#f3f4f6] border-b border-gray-200">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12">
+            {currentChat.avatarImage && (
+              <img
+                src={`data:image/svg+xml;base64,${currentChat.avatarImage}`}
+                alt="avatar"
+                className="w-full h-full object-cover rounded-full"
+              />
+            )}
           </div>
-          <div className="username">
-            <h3>{currentChat.username}</h3>
-          </div>
-          <div className="username">
-            <h3>{currentChat.isOnline ? "Online" : "Offline"}</h3>
-          </div>
-          <div className="username">
-            <h3>{isTyping ? "Typing..." : ""}</h3>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-semibold">{currentChat.username}</h3>
+              <div
+                className={`w-2.5 h-2.5 rounded-full ${
+                  currentChat.isOnline ? "bg-green-500" : "bg-red-500"
+                }`}
+              ></div>
+            </div>
+            <h3 className="text-sm text-gray-600">
+              {isTyping ? "Typing..." : ""}
+            </h3>
           </div>
         </div>
         <Logout />
       </div>
-      <div className="chat-messages">
-        {messages.map((message) => {
-          return (
-            <div ref={scrollRef} key={uuidv4()}>
-              <div
-                className={`message ${
-                  message.fromSelf ? "sended" : "recieved"
-                }`}
-              >
-                <div className="content ">
-                  <p>{message.message}</p>
-                </div>
-              </div>
+
+      {/* Messages Section */}
+      <div className="flex-1 p-4 overflow-auto bg-white scrollbar-hide">
+        {messages.map((message) => (
+          <div
+            key={uuidv4()}
+            className={`flex mb-2 ${
+              message.fromSelf ? "justify-end" : "justify-start"
+            }`}
+          >
+            <div
+              className={`max-w-[70%] p-3 rounded-lg ${
+                message.fromSelf
+                  ? "bg-[#ef6144] text-[#FFFBE6]"
+                  : "bg-[#e5e7eb] text-black"
+              }`}
+            >
+              <p className="text-base break-words">{message.message}</p>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
+
+      {/* Chat Input */}
       <ChatInput handleSendMsg={handleSendMsg} />
-    </Container>
+    </div>
   );
 }
-
-const Container = styled.div`
-  display: grid;
-  grid-template-rows: 10% 80% 10%;
-  gap: 0.1rem;
-  overflow: hidden;
-  @media screen and (min-width: 720px) and (max-width: 1080px) {
-    grid-template-rows: 15% 70% 15%;
-  }
-  .chat-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 2rem;
-    .user-details {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      .avatar {
-        img {
-          height: 3rem;
-        }
-      }
-      .username {
-        h3 {
-          color: white;
-        }
-      }
-    }
-  }
-  .chat-messages {
-    padding: 1rem 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    overflow: auto;
-    &::-webkit-scrollbar {
-      width: 0.2rem;
-      &-thumb {
-        background-color: #ffffff39;
-        width: 0.1rem;
-        border-radius: 1rem;
-      }
-    }
-    .message {
-      display: flex;
-      align-items: center;
-      .content {
-        max-width: 40%;
-        overflow-wrap: break-word;
-        padding: 1rem;
-        font-size: 1.1rem;
-        border-radius: 1rem;
-        color: #d1d1d1;
-        @media screen and (min-width: 720px) and (max-width: 1080px) {
-          max-width: 70%;
-        }
-      }
-    }
-    .sended {
-      justify-content: flex-end;
-      .content {
-        background-color: #4f04ff21;
-      }
-    }
-    .recieved {
-      justify-content: flex-start;
-      .content {
-        background-color: #9900ff20;
-      }
-    }
-  }
-`;

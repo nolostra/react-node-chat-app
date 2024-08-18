@@ -15,14 +15,10 @@ export default function Chat() {
   const [currentChat, setCurrentChat] = useState(undefined);
   const [currentUser, setCurrentUser] = useState(undefined);
   useEffect(async () => {
-    if (!localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)) {
+    if (!localStorage.getItem("user")) {
       navigate("/login");
     } else {
-      setCurrentUser(
-        await JSON.parse(
-          localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-        )
-      );
+      setCurrentUser(await JSON.parse(localStorage.getItem("user")));
     }
   }, []);
   useEffect(() => {
@@ -44,19 +40,15 @@ export default function Chat() {
     }
   }, [currentUser]);
 
-
   useEffect(async () => {
     socket.current = io(host);
-    const data = await JSON.parse(
-      localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-    );
-    console.log(data)
-    socket.current.emit('user-status', { id: data.id });
+    const data = await JSON.parse(localStorage.getItem("user"));
+    console.log(data);
+    socket.current.emit("user-status", { id: data.id });
 
     // Cleanup function to send message when the component unmounts
     return () => {
-      socket.current.emit('user-status', { id: data.id });
-   
+      socket.current.emit("user-status", { id: data.id });
     };
   }, []);
   const handleChatChange = (chat) => {
@@ -64,37 +56,20 @@ export default function Chat() {
   };
   return (
     <>
-      <Container>
-        <div className="container">
+    <div className="flex flex-col justify-center items-center ">
+      <div className="h-[100vh] w-[100vw] bg-[#00000076] flex flex-col md:flex-row">
+        <div className="flex-none w-full h-full md:w-1/4">
           <Contacts contacts={contacts} changeChat={handleChatChange} />
+        </div>
+        <div className="flex-grow">
           {currentChat === undefined ? (
             <Welcome />
           ) : (
             <ChatContainer currentChat={currentChat} socket={socket} />
           )}
         </div>
-      </Container>
-    </>
+      </div>
+    </div>
+  </>
   );
 }
-
-const Container = styled.div`
-  height: 100vh;
-  width: 100vw;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 1rem;
-  align-items: center;
-  background-color: #131324;
-  .container {
-    height: 85vh;
-    width: 85vw;
-    background-color: #00000076;
-    display: grid;
-    grid-template-columns: 25% 75%;
-    @media screen and (min-width: 720px) and (max-width: 1080px) {
-      grid-template-columns: 35% 65%;
-    }
-  }
-`;

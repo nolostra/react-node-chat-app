@@ -18,6 +18,7 @@
     "react-toastify": "^8.1.1",
     "socket.io-client": "^4.4.1",
     "styled-components": "^5.3.3",
+    "tailwind-scrollbar-hide": "^1.1.7",
     "uuid": "^8.3.2",
     "web-vitals": "^2.1.4"
   },
@@ -44,5 +45,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^3.4.10"
   }
 }

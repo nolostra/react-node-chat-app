@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import styled from "styled-components";
 import { useNavigate, Link } from "react-router-dom";
 import Logo from "../assets/logo.svg";
 import { ToastContainer, toast } from "react-toastify";
@@ -18,10 +17,10 @@ export default function Login() {
     theme: "dark",
   };
   useEffect(() => {
-    if (localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)) {
+    if (localStorage.getItem("user")) {
       navigate("/");
     }
-  }, []);
+  }, [navigate]);
 
   const handleChange = (event) => {
     setValues({ ...values, [event.target.name]: event.target.value });
@@ -51,10 +50,7 @@ export default function Login() {
         toast.error(data.msg, toastOptions);
       }
       if (data.status === true) {
-        localStorage.setItem(
-          process.env.REACT_APP_LOCALHOST_KEY,
-          JSON.stringify(data.user)
-        );
+        localStorage.setItem("user", JSON.stringify(data.user));
 
         navigate("/");
       }
@@ -63,11 +59,15 @@ export default function Login() {
 
   return (
     <>
-      <FormContainer>
-        <form action="" onSubmit={(event) => handleSubmit(event)}>
-          <div className="brand">
-            <img src={Logo} alt="logo" />
-            <h1>snappy</h1>
+      <div className="h-screen w-screen flex flex-col justify-center items-center bg-[#D5ED9F]">
+        <form
+          className="flex flex-col gap-6 bg-[#FFFBE6] rounded-lg p-10 shadow-lg"
+          onSubmit={(event) => handleSubmit(event)}
+        >
+          <div className="flex items-center gap-2 justify-center mb-6">
+            <h1 className="text-[#FF9100] text-3xl font-bold uppercase">
+              CHAT-APP
+            </h1>
           </div>
           <input
             type="text"
@@ -75,89 +75,33 @@ export default function Login() {
             name="username"
             onChange={(e) => handleChange(e)}
             min="3"
+            className="bg-transparent p-3 border border-solid border-[#00712D] rounded-md text-[#FF9100] w-full text-lg focus:border-[#FF9100] outline-none"
           />
           <input
             type="password"
             placeholder="Password"
             name="password"
             onChange={(e) => handleChange(e)}
+            className="bg-transparent p-3 border border-solid border-[#00712D] rounded-md text-[#FF9100] w-full text-lg focus:border-[#FF9100] outline-none"
           />
-          <button type="submit">Log In</button>
-          <span>
-            Don't have an account ? <Link to="/register">Create One.</Link>
+          <button
+            type="submit"
+            className="bg-[#FF9100] text-white p-3 border-none font-bold cursor-pointer rounded-md text-lg uppercase hover:bg-[#e68000] transition-colors duration-300"
+          >
+            Log In
+          </button>
+          <span className="text-[#FF9100] uppercase mt-4">
+            Don't have an account?{" "}
+            <Link
+              to="/register"
+              className="text-[#FF9100] no-underline font-bold hover:underline"
+            >
+              Create One.
+            </Link>
           </span>
         </form>
-      </FormContainer>
+      </div>
       <ToastContainer />
     </>
   );
 }
-
-const FormContainer = styled.div`
-  height: 100vh;
-  width: 100vw;
-  display: flex;
-  flex-direction: column;
-    justify-content: center;
-  gap: 1rem;
-  align-items: center;
-  background-color: #131324;
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    justify-content: center;
-    img {
-      height: 5rem;
-    }
-    h1 {
-      color: white;
-      text-transform: uppercase;
-    }
-  }
-
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    background-color: #00000076;
-    border-radius: 2rem;
-    padding: 5rem;
-  }
-  input {
-    background-color: transparent;
-    padding: 1rem;
-    border: 0.1rem solid #4e0eff;
-    border-radius: 0.4rem;
-    color: white;
-    width: 100%;
-    font-size: 1rem;
-    &:focus {
-      border: 0.1rem solid #997af0;
-      outline: none;
-    }
-  }
-  button {
-    background-color: #4e0eff;
-    color: white;
-    padding: 1rem 2rem;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 0.4rem;
-    font-size: 1rem;
-    text-transform: uppercase;
-    &:hover {
-        background-color: #4e0eff;
-    }
-  }
-  span {
-    color: white;
-    text-transform: uppercase;
-    a {
-      color: #4e0eff;
-      text-decoration: none;
-      font-weight: bold;
-    }
-  }
-`;

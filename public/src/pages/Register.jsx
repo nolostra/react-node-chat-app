@@ -24,7 +24,7 @@ export default function Register() {
   });
 
   useEffect(() => {
-    if (localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)) {
+    if (localStorage.getItem("user")) {
       navigate("/");
     }
   }, []);
@@ -75,10 +75,7 @@ export default function Register() {
         toast.error(data.msg, toastOptions);
       }
       if (data.status === true) {
-        localStorage.setItem(
-          process.env.REACT_APP_LOCALHOST_KEY,
-          JSON.stringify(data.user)
-        );
+        localStorage.setItem("user", JSON.stringify(data.user));
         navigate("/");
       }
     }
@@ -86,112 +83,62 @@ export default function Register() {
 
   return (
     <>
-      <FormContainer>
-        <form action="" onSubmit={(event) => handleSubmit(event)}>
-          <div className="brand">
-            <img src={Logo} alt="logo" />
-            <h1>snappy</h1>
+      <div className="h-screen w-screen flex flex-col justify-center items-center bg-[#D5ED9F]">
+        <form
+          className="flex flex-col gap-6 bg-[#FFFBE6] rounded-lg p-10 shadow-lg"
+          onSubmit={(event) => handleSubmit(event)}
+        >
+          <div className="flex items-center gap-2 justify-center mb-6">
+            <h1 className="text-[#FF9100] text-3xl font-bold uppercase">
+              CHAT-APP
+            </h1>
           </div>
           <input
             type="text"
             placeholder="Username"
             name="username"
             onChange={(e) => handleChange(e)}
+            className="bg-transparent p-3 border border-solid border-[#00712D] rounded-md text-[#00712D] w-full text-lg focus:border-[#997af0] outline-none"
           />
           <input
             type="email"
             placeholder="Email"
             name="email"
             onChange={(e) => handleChange(e)}
+            className="bg-transparent p-3 border border-solid border-[#00712D] rounded-md text-[#00712D] w-full text-lg focus:border-[#997af0] outline-none"
           />
           <input
             type="password"
             placeholder="Password"
             name="password"
             onChange={(e) => handleChange(e)}
+            className="bg-transparent p-3 border border-solid border-[#00712D] rounded-md text-[#00712D] w-full text-lg focus:border-[#997af0] outline-none"
           />
           <input
             type="password"
             placeholder="Confirm Password"
             name="confirmPassword"
             onChange={(e) => handleChange(e)}
+            className="bg-transparent p-3 border border-solid border-[#00712D] rounded-md text-[#00712D] w-full text-lg focus:border-[#997af0] outline-none"
           />
-          <button type="submit">Create User</button>
-          <span>
-            Already have an account ? <Link to="/login">Login.</Link>
+          <button
+            type="submit"
+            className="bg-[#00712D] text-white p-3 border-none font-bold cursor-pointer rounded-md text-lg uppercase hover:bg-[#005a1a] transition-colors duration-300"
+          >
+            Create User
+          </button>
+          <span className="text-[#00712D] uppercase mt-4">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-[#00712D] no-underline font-bold hover:underline"
+            >
+              Login.
+            </Link>
           </span>
         </form>
-      </FormContainer>
+      </div>
       <ToastContainer />
     </>
   );
 }
-
-const FormContainer = styled.div`
-  height: 100vh;
-  width: 100vw;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 1rem;
-  align-items: center;
-  background-color: #131324;
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    justify-content: center;
-    img {
-      height: 5rem;
-    }
-    h1 {
-      color: white;
-      text-transform: uppercase;
-    }
-        }
-
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    background-color: #00000076;
-    border-radius: 2rem;
-    padding: 3rem 5rem;
-  }
-  input {
-    background-color: transparent;
-    padding: 1rem;
-    border: 0.1rem solid #4e0eff;
-    border-radius: 0.4rem;
-    color: white;
-    width: 100%;
-    font-size: 1rem;
-    &:focus {
-      border: 0.1rem solid #997af0;
-      outline: none;
-    }
-  }
-  button {
-    background-color: #4e0eff;
-    color: white;
-    padding: 1rem 2rem;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 0.4rem;
-    font-size: 1rem;
-    text-transform: uppercase;
-    &:hover {
-      background-color: #4e0eff;
-    }
-  }
-  span {
-    color: white;
-    text-transform: uppercase;
-    a {
-      color: #4e0eff;
-      text-decoration: none;
-      font-weight: bold;
-    }
-  }
-`;

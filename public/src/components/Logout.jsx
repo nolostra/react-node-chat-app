@@ -7,9 +7,7 @@ import { logoutRoute } from "../utils/APIRoutes";
 export default function Logout() {
   const navigate = useNavigate();
   const handleClick = async () => {
-    const storadData = await JSON.parse(
-      localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-    )
+    const storadData = await JSON.parse(localStorage.getItem("user"));
     const data = await axios.get(`${logoutRoute}/${storadData.id}`);
     if (data.status === 200) {
       localStorage.clear();

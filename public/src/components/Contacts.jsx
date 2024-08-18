@@ -7,9 +7,7 @@ export default function Contacts({ contacts, changeChat }) {
   const [currentUserImage, setCurrentUserImage] = useState(undefined);
   const [currentSelected, setCurrentSelected] = useState(undefined);
   useEffect(async () => {
-    const data = await JSON.parse(
-      localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-    );
+    const data = await JSON.parse(localStorage.getItem("user"));
     setCurrentUserName(data.username);
     setCurrentUserImage(data.avatarImage);
   }, []);
@@ -19,134 +17,51 @@ export default function Contacts({ contacts, changeChat }) {
   };
   return (
     <>
-      {currentUserImage && currentUserImage && (
-        <Container>
-          <div className="brand">
-            <img src={Logo} alt="logo" />
-            <h3>snappy</h3>
+      {currentUserImage && (
+        <div className="h-full flex flex-col bg-white border-r overflow-y-hidden">
+          <div className="p-2 bg-[#f9fafb] border border-[#e5e7eb] w-full">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full p-2 border border-[#e5e7eb] rounded-md text-gray-700  focus:outline-none"
+            />
           </div>
-          <div className="contacts">
-            {contacts.map((contact, index) => {
-              return (
-                <div
-                  key={contact.id}
-                  className={`contact ${
-                    index === currentSelected ? "selected" : ""
-                  }`}
-                  onClick={() => changeCurrentChat(index, contact)}
-                >
-                  <div className="avatar">
-                    <img
-                      src={`data:image/svg+xml;base64,${contact.avatarImage}`}
-                      alt=""
-                    />
-                  </div>
-                  <div className="username">
-                    <h3>{contact.username}</h3>
-                  </div>
+          <div className="flex flex-col items-center overflow-auto gap-2 p-2 scrollbar-hide ">
+            {contacts.map((contact, index) => (
+              <div
+                key={contact.id}
+                className={`flex gap-4 border items-center p-2 rounded-sm transition duration-500 cursor-pointer w-full ${
+                  index === currentSelected ? "bg-[#e5e7eb]" : "bg-[#f9fafb]"
+                }`}
+                onClick={() => changeCurrentChat(index, contact)}
+              >
+                <div className="flex-shrink-0">
+                  <img
+                    src={`data:image/svg+xml;base64,${contact.avatarImage}`}
+                    alt=""
+                    className="h-12"
+                  />
                 </div>
-              );
-            })}
+                <div>
+                  <h3 className="">{contact.username}</h3>
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="current-user">
-            <div className="avatar">
+          <div className="flex items-center justify-center gap-8 bg-[#e5e7eb] p-2 h-1/4">
+            <div className="flex-shrink-0">
               <img
                 src={`data:image/svg+xml;base64,${currentUserImage}`}
                 alt="avatar"
+                className="h-16 max-w-full"
               />
             </div>
-            <div className="username">
-              <h2>{currentUserName}</h2>
+            <div>
+              <h2 className=" text-black text-lg">{currentUserName}</h2>
             </div>
           </div>
-        </Container>
+        </div>
       )}
     </>
   );
 }
-const Container = styled.div`
-  display: grid;
-  grid-template-rows: 10% 75% 15%;
-  overflow: hidden;
-  background-color: #080420;
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    justify-content: center;
-    img {
-      height: 2rem;
-    }
-    h3 {
-      color: white;
-      text-transform: uppercase;
-    }
-  }
-  .contacts {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: auto;
-    gap: 0.8rem;
-    &::-webkit-scrollbar {
-      width: 0.2rem;
-      &-thumb {
-        background-color: #ffffff39;
-        width: 0.1rem;
-        border-radius: 1rem;
-      }
-    }
-    .contact {
-      background-color: #ffffff34;
-        min-height: 5rem;
-      cursor: pointer;
-      width: 90%;
-      border-radius: 0.2rem;
-      padding: 0.4rem;
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      transition: 0.5s ease-in-out;
-      .avatar {
-        img {
-          height: 3rem;
-        }
-      }
-      .username {
-        h3 {
-          color: white;
-        }
-      }
-    }
-    .selected {
-      background-color: #9a86f3;
-    }
-  }
-
-  .current-user {
-    background-color: #0d0d30;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 2rem;
-    .avatar {
-      img {
-        height: 4rem;
-        max-inline-size: 100%;
-      }
-    }
-    .username {
-      h2 {
-        color: white;
-      }
-    }
-    @media screen and (min-width: 720px) and (max-width: 1080px) {
-      gap: 0.5rem;
-      .username {
-        h2 {
-          font-size: 1rem;
-        }
-      }
-    }
-  }
-`;

@@ -22,139 +22,84 @@ export default function SetAvatar() {
   };
 
   useEffect(async () => {
-if (!localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY))
-  navigate("/login");
-}, []);
+    if (!localStorage.getItem("user")) navigate("/login");
+  }, []);
 
-const setProfilePicture = async () => {
-if (selectedAvatar === undefined) {
-  toast.error("Please select an avatar", toastOptions);
-} else {
-  const user = await JSON.parse(
-    localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-  );
-  console.log("user", user);
+  const setProfilePicture = async () => {
+    if (selectedAvatar === undefined) {
+      toast.error("Please select an avatar", toastOptions);
+    } else {
+      const user = await JSON.parse(localStorage.getItem("user"));
+      console.log("user", user);
 
-  const { data } = await axios.post(`${setAvatarRoute}/${user.id}`, {
-    image: avatars[selectedAvatar],
-  });
+      const { data } = await axios.post(`${setAvatarRoute}/${user.id}`, {
+        image: avatars[selectedAvatar],
+      });
 
-  if (data.isSet) {
-    user.isAvatarImageSet = true;
-    user.avatarImage = data.image;
-    localStorage.setItem(
-      process.env.REACT_APP_LOCALHOST_KEY,
-      JSON.stringify(user)
-    );
-    navigate("/");
-  } else {
-    toast.error("Error setting avatar. Please try again.", toastOptions);
-  }
-}
-};
+      if (data.isSet) {
+        user.isAvatarImageSet = true;
+        user.avatarImage = data.image;
+        localStorage.setItem("user", JSON.stringify(user));
+        navigate("/");
+      } else {
+        toast.error("Error setting avatar. Please try again.", toastOptions);
+      }
+    }
+  };
 
-useEffect(async () => {
-const data = [];
-for (let i = 0; i < 4; i++) {
-  const image = await axios.get(
-    `${api}/${Math.round(Math.random() * 1000)}`
-  );
-  const buffer = new Buffer(image.data);
-  data.push(buffer.toString("base64"));
-}
-setAvatars(data);
-setIsLoading(false);
-}, []);
-return (
-  <>
-    {isLoading ? (
-      <Container>
-        <img src={loader} alt="loader" className="loader" />
-      </Container>
-    ) : (
-      <Container>
-        <div className="title-container">
-          <h1>Pick an Avatar as your profile picture</h1>
+  useEffect(async () => {
+    const data = [];
+    for (let i = 0; i < 4; i++) {
+      const image = await axios.get(
+        `${api}/${Math.round(Math.random() * 1000)}`
+      );
+      const buffer = new Buffer(image.data);
+      data.push(buffer.toString("base64"));
+    }
+    setAvatars(data);
+    setIsLoading(false);
+  }, []);
+  return (
+    <>
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center gap-12 bg-[#D5ED9F] h-screen w-screen">
+          <img src={loader} alt="loader" className="max-w-full" />
         </div>
-        <div className="avatars">
-          {avatars.map((avatar, index) => {
-            return (
+      ) : (
+        <div className="flex flex-col items-center justify-center gap-12 bg-[#D5ED9F] h-screen w-screen">
+          <div className="text-[#FF9100]">
+            <h1 className="text-2xl font-bold">
+              Pick an Avatar as your profile picture
+            </h1>
+          </div>
+          <div className="flex gap-8">
+            {avatars.map((avatar, index) => (
               <div
-                className={`avatar ${
-                  selectedAvatar === index ? "selected" : ""
+                key={avatar}
+                className={`border-4 rounded-full p-1 flex items-center justify-center transition-all duration-500 ${
+                  selectedAvatar === index
+                    ? "border-[#00712D]"
+                    : "border-transparent"
                 }`}
+                onClick={() => setSelectedAvatar(index)}
               >
                 <img
                   src={`data:image/svg+xml;base64,${avatar}`}
                   alt="avatar"
-                  key={avatar}
-                  onClick={() => setSelectedAvatar(index)}
+                  className="h-24 transition-all duration-500"
                 />
               </div>
-            );
-          })}
+            ))}
+          </div>
+          <button
+            onClick={setProfilePicture}
+            className="bg-[#FF9100] text-white py-3 px-6 rounded-md font-bold text-lg uppercase hover:bg-[#e68000] transition-colors duration-300"
+          >
+            Set as Profile Picture
+          </button>
+          <ToastContainer />
         </div>
-        <button onClick={setProfilePicture} className="submit-btn">
-          Set as Profile Picture
-        </button>
-        <ToastContainer />
-      </Container>
-    )}
-  </>
-);
+      )}
+    </>
+  );
 }
-const Container = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  gap: 3rem;
-  background-color: #131324;
-  height: 100vh;
-  width: 100vw;
-
-  .loader {
-    max-inline-size: 100%;
-  }
-
-  .title-container {
-    h1 {
-      color: white;
-    }
-  }
-  .avatars {
-    display: flex;
-    gap: 2rem;
-
-    .avatar {
-      border: 0.4rem solid transparent;
-      padding: 0.4rem;
-      border-radius: 5rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: 0.5s ease-in-out;
-      img {
-        height: 6rem;
-        transition: 0.5s ease-in-out;
-      }
-    }
-    .selected {
-      border: 0.4rem solid #4e0eff;
-    }
-  }
-  .submit-btn {
-    background-color: #4e0eff;
-    color: white;
-    padding: 1rem 2rem;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 0.4rem;
-    font-size: 1rem;
-    text-transform: uppercase;
-    &:hover {
-      background-color: #4e0eff;
-    }
-  }
-`;
